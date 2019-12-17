@@ -23,11 +23,11 @@ dirtDistribution = (arr) => {
 }
 
 //function to create the room grid, where it takes two parameter w = width and l = length
-createRoom = (hoover, w, l, dirt) => {
+createRoom = (hoover, w, l, dirtMap) => {
     //create  new table object using cli-table2
     let table = new Table()
 
-    let dirtMap = dirtDistribution(dirt)
+    
 
     for (let i = 0; i < w; i++) {
         let row = []
@@ -50,7 +50,7 @@ createRoom = (hoover, w, l, dirt) => {
     console.log(table.toString())
 }
 
-followInstruction = (ins) => {
+followInstruction = (ins, dirtMap) => {
     let hooverX = 0
     let hooverY = 0
     let roomX = 5
@@ -68,9 +68,14 @@ followInstruction = (ins) => {
         else {
             hooverX = Math.min(roomX, hooverX + 1)
         }
+
+        if(dirtMap[hooverX] && dirtMap[hooverX][hooverY]){
+            dirtMap[hooverX][hooverY] = false
+        }
+
     }
-    hooverPosition = [hooverX, hooverY]
-    return hooverPosition
+    let hooverPosition = [hooverX, hooverY]
+    return {hooverPosition, dirtMap}
 }
 
 
@@ -92,16 +97,17 @@ readFile = () => {
         //second line contains the hoover position
         let hooverPosition = dataArr[1]
 
-        let dirtPatch = dataArr.slice(2, dataArr.length - 1)
+        let dirtPatchObject = dirtDistribution(dataArr.slice(2, dataArr.length - 1))
 
-        // dirtDistribution(dirtPatch)
-        // createRoom(hooverPosition, x, y, dirtPatch)
+
+        // createRoom(hooverPosition, x, y, dirtPatchObject)
 
 
         //last line contain the instruction
         let instruction = dataArr[dataArr.length - 1]
 
-        console.log(followInstruction(instruction))
+        console.log(followInstruction(instruction, dirtPatchObject))
+        // console.log(dirtPatchObject)
     })
 }
 
