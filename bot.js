@@ -23,7 +23,7 @@ dirtDistribution = (arr) => {
 }
 
 //function to create the room grid, where it takes two parameter w = width and l = length
-createRoom = (w, l, dirt) => {
+createRoom = (hoover, w, l, dirt) => {
     //create  new table object using cli-table2
     let table = new Table()
 
@@ -43,6 +43,10 @@ createRoom = (w, l, dirt) => {
         }
         table.push(row)
     }
+    let hooverX = hoover.split(" ")[0]
+    let hooverY = hoover.split(" ")[1]
+
+    table[hooverX][hooverY] += "O"
     console.log(table.toString())
 }
 
@@ -68,7 +72,7 @@ readFile = () => {
         let dirtPatch = dataArr.slice(2, dataArr.length - 1)
 
         // dirtDistribution(dirtPatch)
-        createRoom(x, y, dirtPatch)
+        createRoom(hooverPosition, x, y, dirtPatch)
 
 
         //last line contain the instruction
