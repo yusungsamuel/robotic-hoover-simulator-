@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/yusungsamuel/robotic-hoover-simulator-/issues"
   },
-  "homepage": "https://github.com/yusungsamuel/robotic-hoover-simulator-#readme"
+  "homepage": "https://github.com/yusungsamuel/robotic-hoover-simulator-#readme",
+  "dependencies": {
+    "cli-table2": "^0.2.0"
+  }
 }
