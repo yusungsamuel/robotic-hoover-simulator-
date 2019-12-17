@@ -38,7 +38,7 @@ createRoom = (hoover, w, l, dirt) => {
 
             }
             else {
-                row.push("")
+                row.push(" ")
             }
         }
         table.push(row)
@@ -48,6 +48,29 @@ createRoom = (hoover, w, l, dirt) => {
 
     table[hooverX][hooverY] += "O"
     console.log(table.toString())
+}
+
+followInstruction = (ins) => {
+    let hooverX = 0
+    let hooverY = 0
+    let roomX = 5
+    let roomY = 5
+    for (let i = 0; i < ins.length; i ++){
+        if(ins[i] === "N"){
+            hooverY = Math.min(roomY, hooverY + 1)
+        }
+        else if(ins[i] === "S"){
+            hooverY = Math.max(0, hooverY - 1)
+        }
+        else if(ins[i] === "E"){
+            hooverX = Math.max(0, hooverX - 1)
+        }
+        else {
+            hooverX = Math.min(roomX, hooverX + 1)
+        }
+    }
+    hooverPosition = [hooverX, hooverY]
+    return hooverPosition
 }
 
 
@@ -72,11 +95,13 @@ readFile = () => {
         let dirtPatch = dataArr.slice(2, dataArr.length - 1)
 
         // dirtDistribution(dirtPatch)
-        createRoom(hooverPosition, x, y, dirtPatch)
+        // createRoom(hooverPosition, x, y, dirtPatch)
 
 
         //last line contain the instruction
         let instruction = dataArr[dataArr.length - 1]
+
+        console.log(followInstruction(instruction))
     })
 }
 
