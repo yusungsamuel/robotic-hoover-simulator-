@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/yusungsamuel/robotic-hoover-simulator-#readme",
   "dependencies": {
+    "cli-frames": "^2.2.9",
     "cli-table2": "^0.2.0"
   }
 }

@@ -1,4 +1,8 @@
+//use for nodeJS built-in function to read file content
 var fs = require("fs")
+
+//library for creating ASCII animations in Terminal
+var CliFrames = require("cli-frames");
 
 var Table = require('cli-table2');
 
@@ -23,16 +27,14 @@ dirtDistribution = (arr) => {
 }
 
 //function to create the room grid, where it takes two parameter w = width and l = length
-createRoom = (hoover, w, l, dirtMap) => {
+createRoom = (hX, hY, l, w, dirtMap) => {
     //create  new table object using cli-table2
     let table = new Table()
 
-    
-
-    for (let i = 0; i < w; i++) {
+    for (let i = w-1; i > -1; i--) {
         let row = []
         for (let j = 0; j < l; j++) {
-            if (dirtMap[i] && dirtMap[i][j]) {
+            if (dirtMap[j] && dirtMap[j][i]) {
 
                 row.push("x")
 
@@ -43,39 +45,54 @@ createRoom = (hoover, w, l, dirtMap) => {
         }
         table.push(row)
     }
-    let hooverX = hoover.split(" ")[0]
-    let hooverY = hoover.split(" ")[1]
 
-    table[hooverX][hooverY] += "O"
-    console.log(table.toString())
+    if(hY || hX){
+        table[hY][hX] = "o"
+    }
+    
+    return table.toString()
 }
 
-followInstruction = (ins, dirtMap) => {
-    let hooverX = 0
-    let hooverY = 0
-    let roomX = 5
-    let roomY = 5
+followInstruction = (ins, dirtMap, hoover, rmDim) => {
+    let hooverX = parseInt(hoover.split(" ")[0])
+    let hooverY = parseInt(hoover.split(" ")[1])
+    let roomX = parseInt(rmDim[0])
+    let roomY = parseInt(rmDim[1])
+    let dirtCleaned = 0
+
+    let frame = []
+    frame.push(createRoom(null, null, roomX, roomY, dirtMap))
+    if(dirtMap[hooverX] && dirtMap[hooverX][Math.abs(hooverY-roomY+1)]){
+        dirtMap[hooverX][Math.abs(hooverY-roomY+1)] = false
+        dirtCleaned ++
+    }
+    frame.push(createRoom(hooverX, hooverY, roomX, roomY, dirtMap))
+
     for (let i = 0; i < ins.length; i ++){
-        if(ins[i] === "N"){
+        if(ins[i] === "S"){
             hooverY = Math.min(roomY, hooverY + 1)
         }
-        else if(ins[i] === "S"){
+        else if(ins[i] === "N"){
             hooverY = Math.max(0, hooverY - 1)
         }
-        else if(ins[i] === "E"){
+        else if(ins[i] === "W"){
             hooverX = Math.max(0, hooverX - 1)
         }
         else {
             hooverX = Math.min(roomX, hooverX + 1)
         }
 
-        if(dirtMap[hooverX] && dirtMap[hooverX][hooverY]){
-            dirtMap[hooverX][hooverY] = false
+        if(dirtMap[hooverX] && dirtMap[hooverX][Math.abs(hooverY-roomY+1)]){
+            dirtMap[hooverX][Math.abs(hooverY-roomY+1)] = false
+            dirtCleaned ++
         }
-
+        frame.push(createRoom(hooverX, hooverY, roomX, roomY, dirtMap))
     }
-    let hooverPosition = [hooverX, hooverY]
-    return {hooverPosition, dirtMap}
+        frame[frame.length-1] += ("\n" +`Your Hoover Bot have cleaned ${dirtCleaned} dirt patch(es)!`)
+        frame[frame.length-1] += ("\n" + `Your Hoover Bot final location is  ${hooverX} ${Math.abs(hooverY-roomY+1)}`)
+        
+    
+    return  frame
 }
 
 
@@ -89,29 +106,37 @@ readFile = () => {
         // the first line of data contain the dimension of the room
         const dimension = dataArr[0].split(" ")
 
-        //extracting the length and width of the room and converting the data to a number
-        const x = parseInt(dimension[0])
-        const y = parseInt(dimension[1])
-
 
         //second line contains the hoover position
         let hooverPosition = dataArr[1]
 
         let dirtPatchObject = dirtDistribution(dataArr.slice(2, dataArr.length - 1))
 
-
-        // createRoom(hooverPosition, x, y, dirtPatchObject)
-
-
         //last line contain the instruction
         let instruction = dataArr[dataArr.length - 1]
 
-        console.log(followInstruction(instruction, dirtPatchObject))
-        // console.log(dirtPatchObject)
+        let result = followInstruction(instruction, dirtPatchObject, hooverPosition, dimension)
+        
+
+        new CliFrames({
+            frames: ["Hoover Simulator", "READY             ", "SET             ", "GO!             "]
+          , autostart: {
+                delay: 1000
+              , end: function (err, data) {
+                    // Create another animation
+                    var animation = new CliFrames();
+                    animation.load(result);
+                    animation.start({
+                        repeat: false
+                      , delay: 700
+                    });
+                    
+                }
+            }
+        });
+        
     })
 }
 
 
 readFile()
-
-
