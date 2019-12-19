@@ -15,7 +15,7 @@ dirtDistribution = (arr) => {
         arr.forEach((data) => {
             //parsing data from a string into a array
             let position = data.split(" ")
-            
+
             //if key is found, add nested object to it
             if (dirtObj[position[0]]) {
                 dirtObj[position[0]][position[1]] = true
@@ -39,10 +39,10 @@ createRoom = (hX, hY, l, w, dirtMap) => {
     let table = new Table()
 
     //looping to create each row of the room. Start looping from back because cli-table2 create table object with number as key indicating the row number starting from 0 as the top row
-    for (let i = w-1; i > -1; i--) {
+    for (let i = w - 1; i > -1; i--) {
         //creating a new row in each loop
         let row = []
-        
+
         //looping through the row
         for (let j = 0; j < l; j++) {
             //referencing the object with dirt patches location and filling out table with dirt where they are 
@@ -61,10 +61,10 @@ createRoom = (hX, hY, l, w, dirtMap) => {
     }
 
     //if hoover is placed in room, add to table.
-    if(hY || hX){
+    if (hY || hX) {
         table[hY][hX] = "o"
     }
-    
+
     //cli table-2 creates a object. parse it into string to be presentable in terminal
     return table.toString()
 }
@@ -76,7 +76,7 @@ followInstruction = (ins, dirtMap, hoover, rmDim) => {
 
     //stores the hoover position, y coordinate
     let hooverY = parseInt(hoover.split(" ")[1])
-    
+
     //stores the room length in x direction
     let roomX = parseInt(rmDim[0])
 
@@ -88,30 +88,30 @@ followInstruction = (ins, dirtMap, hoover, rmDim) => {
 
     //holds the frames of the animation to be presented in terminal
     let frame = []
-    
+
     //initial picture of room before hoover was placed
     frame.push(createRoom(null, null, roomX, roomY, dirtMap))
-    
+
     //if hoover was initially placed on a spot where there is dirt
     //the y coordinate needs to be calculated due to the nature of the cli-table2 format where the top row is row 0. This is also the case for all the other hoover Y position for the rest of the function
-    if(dirtMap[hooverX] && dirtMap[hooverX][Math.abs(hooverY-roomY+1)]){
-        dirtMap[hooverX][Math.abs(hooverY-roomY+1)] = false
-        dirtCleaned ++
+    if (dirtMap[hooverX] && dirtMap[hooverX][Math.abs(hooverY - roomY + 1)]) {
+        dirtMap[hooverX][Math.abs(hooverY - roomY + 1)] = false
+        dirtCleaned++
     }
 
     //creating the frame once the hoover is placed
     frame.push(createRoom(hooverX, hooverY, roomX, roomY, dirtMap))
 
     //loop through instructions
-    for (let i = 0; i < ins.length; i ++){
+    for (let i = 0; i < ins.length; i++) {
         //the math function is used to account for when the hoover is already on the edge so that it will not go beyond the room border
-        if(ins[i] === "S"){
+        if (ins[i] === "S") {
             hooverY = Math.min(roomY, hooverY + 1)
         }
-        else if(ins[i] === "N"){
+        else if (ins[i] === "N") {
             hooverY = Math.max(0, hooverY - 1)
         }
-        else if(ins[i] === "W"){
+        else if (ins[i] === "W") {
             hooverX = Math.max(0, hooverX - 1)
         }
         else {
@@ -119,26 +119,29 @@ followInstruction = (ins, dirtMap, hoover, rmDim) => {
         }
 
         //check to see if the hoover landed on a dirt patch
-        if(dirtMap[hooverX] && dirtMap[hooverX][Math.abs(hooverY-roomY+1)]){
-            dirtMap[hooverX][Math.abs(hooverY-roomY+1)] = false
-            dirtCleaned ++
+        if (dirtMap[hooverX] && dirtMap[hooverX][Math.abs(hooverY - roomY + 1)]) {
+            dirtMap[hooverX][Math.abs(hooverY - roomY + 1)] = false
+            dirtCleaned++
         }
-        
+
         //create a new frame with new hoover position and dirt patches distribution
         frame.push(createRoom(hooverX, hooverY, roomX, roomY, dirtMap))
     }
-        
-        //add statistic to the last frame 
-        frame[frame.length-1] += ("\n" +`Your Hoover Bot have cleaned ${dirtCleaned} dirt patch(es)!`)
-        frame[frame.length-1] += ("\n" + `Your Hoover Bot final location is  ${hooverX} ${Math.abs(hooverY-roomY+1)}`)
-        
+
+    //Adding final location of hoover to last frame
+    frame[frame.length - 1] += ("\n" + `Your Hoover Bot final location is  ${hooverX} ${Math.abs(hooverY - roomY + 1)}`)
+
+    //add statistic to the last frame 
+    frame[frame.length - 1] += ("\n" + `Your Hoover Bot have cleaned ${dirtCleaned} dirt patch(es)!`)
+
+
     //return an array of strings of grids
-    return  frame
+    return frame
 }
 
 //function to read and parse data from input.txt and initiate the application
 readFile = () => {
-    
+
     //reading the content in input.txt
     fs.readFile("input.txt", "utf8", (err, data) => {
         if (err) throw err;
@@ -161,25 +164,25 @@ readFile = () => {
 
         //stores the array containing each frame after the hoover has moved
         let result = followInstruction(instruction, dirtPatchObject, hooverPosition, dimension)
-        
+
         //animation object
         new CliFrames({
             frames: ["Hoover Simulator", "READY             ", "SET             ", "GO!             "]
-          , autostart: {
+            , autostart: {
                 delay: 1000
-              , end: function (err, data) {
+                , end: function (err, data) {
                     // Create another animation
                     var animation = new CliFrames();
                     animation.load(result);
                     animation.start({
                         repeat: false
-                      , delay: 700
+                        , delay: 700
                     });
-                    
+
                 }
             }
         });
-        
+
     })
 }
 
