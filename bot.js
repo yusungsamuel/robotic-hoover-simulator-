@@ -104,7 +104,7 @@ followInstruction = (ins, dirtMap, hoover, rmDim) => {
 
     //loop through instructions
     for (let i = 0; i < ins.length; i++) {
-        //the math function is used to account for when the hoover is already on the edge so that it will not go beyond the room border
+        //the math function is used to account for when the hoover is already on the edge so that it will not go beyond the room border, N is -1 since top row is 0 according to the cli-table2 format
         if (ins[i] === "S") {
             hooverY = Math.min(roomY, hooverY + 1)
         }
